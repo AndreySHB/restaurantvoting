@@ -8,8 +8,10 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import ru.javaops.bootjava.AuthUser;
 import ru.javaops.bootjava.model.Role;
 import ru.javaops.bootjava.model.User;
@@ -23,6 +25,7 @@ import java.util.Optional;
 @AllArgsConstructor
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
+    public static final PasswordEncoder PASSWORD_ENCODER = PasswordEncoderFactories.createDelegatingPasswordEncoder();
     private final UserRepository userRepository;
 
     @Override
@@ -30,7 +33,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests()
                 .antMatchers("/api/account").hasRole(Role.USER.name())
                 .antMatchers("/api/**").hasRole(Role.ADMIN.name())
-                .and().formLogin();
+                .and().httpBasic()
+                .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and().csrf().disable();
     }
 
     @Autowired
@@ -40,6 +45,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                     Optional<User> optionalUser = userRepository.findByEmailIgnoreCase(email);
                     return new AuthUser(optionalUser.orElseThrow(
                             () -> new UsernameNotFoundException("User '" + email + "' was not found")));
-                }).passwordEncoder(PasswordEncoderFactories.createDelegatingPasswordEncoder());
+                }).passwordEncoder(PASSWORD_ENCODER);
     }
 }
