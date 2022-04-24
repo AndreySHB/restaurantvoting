@@ -29,11 +29,13 @@ class UserControllerTest extends AbstractControllerTest {
                 .with(userHttpBasic(admin)))
                 .andExpect(status().isOk())
                 .andDo(print())
-                .andExpect(content().contentTypeCompatibleWith(MediaTypes.HAL_JSON_VALUE));
+                .andExpect(content().contentTypeCompatibleWith(MediaTypes.HAL_JSON_VALUE))
+                .andExpect(jsonMatcher(user, UserTestUtil::assertNoIdEquals));
     }
 
     @Test
     void getAll() throws Exception {
+        // TODO check content yourself
         perform(MockMvcRequestBuilders.get(URL)
                 .with(userHttpBasic(admin)))
                 .andExpect(status().isOk())
@@ -47,7 +49,8 @@ class UserControllerTest extends AbstractControllerTest {
                 .with(userHttpBasic(admin)))
                 .andExpect(status().isOk())
                 .andDo(print())
-                .andExpect(content().contentTypeCompatibleWith(MediaTypes.HAL_JSON_VALUE));
+                .andExpect(content().contentTypeCompatibleWith(MediaTypes.HAL_JSON_VALUE))
+                .andExpect(jsonMatcher(admin, UserTestUtil::assertNoIdEquals));
     }
 
     @Test
@@ -73,7 +76,8 @@ class UserControllerTest extends AbstractControllerTest {
                 .with(userHttpBasic(admin))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(writeValue(newUser)))
-                .andExpect(status().isCreated());
+                .andExpect(status().isCreated())
+                .andExpect(jsonMatcher(newUser, UserTestUtil::assertNoIdEquals));
     }
 
     @Test
@@ -84,5 +88,6 @@ class UserControllerTest extends AbstractControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(writeValue(updated)))
                 .andExpect(status().isNoContent());
+        UserTestUtil.assertEquals(updated, userRepository.findById(USER_ID).orElseThrow());
     }
 }

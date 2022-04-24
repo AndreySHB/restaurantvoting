@@ -52,7 +52,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(email -> {
                     log.debug("Authenticating '{}'", email);
-                    Optional<User> optionalUser = userRepository.findByEmailIgnoreCase(email);
+                    Optional<User> optionalUser = userRepository.findByEmailIgnoreCase(email.toLowerCase());
                     return new AuthUser(optionalUser.orElseThrow(
                             () -> new UsernameNotFoundException("User '" + email + "' was not found")));
                 }).passwordEncoder(PASSWORD_ENCODER);
