@@ -18,6 +18,6 @@ public class RestaurantvotingApplication implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
-        System.out.println(userRepository.findAll());
+        System.out.println(userRepository.findByLastNameContainingIgnoreCase("last"));
     }
 }
