@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -13,13 +14,12 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import ru.javaops.bootjava.AuthUser;
 import ru.javaops.bootjava.model.Role;
 import ru.javaops.bootjava.model.User;
 import ru.javaops.bootjava.repository.UserRepository;
 import ru.javaops.bootjava.util.JsonUtil;
+import ru.javaops.bootjava.web.AuthUser;
 
-import javax.annotation.PostConstruct;
 import java.util.Optional;
 
 @Configuration
@@ -30,17 +30,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     public static final PasswordEncoder PASSWORD_ENCODER = PasswordEncoderFactories.createDelegatingPasswordEncoder();
     private final UserRepository userRepository;
-    private final ObjectMapper objectMapper;
 
-    @PostConstruct
-    void setMapper() {
+    @Autowired
+    private void setMapper(ObjectMapper objectMapper) {
         JsonUtil.setObjectMapper(objectMapper);
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
-                .antMatchers("/api/account/register").anonymous()
+                .antMatchers(HttpMethod.POST, "/api/account").anonymous()
                 .antMatchers("/api/account").hasRole(Role.USER.name())
                 .antMatchers("/api/**").hasRole(Role.ADMIN.name())
                 .and().httpBasic()

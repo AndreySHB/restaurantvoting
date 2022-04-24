@@ -22,7 +22,7 @@ class AccountControllerTest extends AbstractControllerTest {
     private UserRepository userRepository;
 
     //TODO
-    /*@Test
+   /* @Test
     void get() throws Exception {
         perform(MockMvcRequestBuilders.get(URL)
                 .with(userHttpBasic(user)))
@@ -50,7 +50,7 @@ class AccountControllerTest extends AbstractControllerTest {
     @Test
     void register() throws Exception {
         User newUser = UserTestUtil.getNew();
-        User registered = asUser(perform(MockMvcRequestBuilders.post(URL + "/register")
+        User registered = asUser(perform(MockMvcRequestBuilders.post(URL)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(writeValue(newUser)))
                 .andExpect(status().isCreated()).andReturn());

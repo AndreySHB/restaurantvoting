@@ -5,6 +5,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import ru.javaops.bootjava.model.User;
+import ru.javaops.bootjava.web.AuthUser;
 
 
 public class TestUtil {
