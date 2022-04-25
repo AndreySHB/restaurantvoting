@@ -8,13 +8,12 @@
         <version>2.6.7</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>topjava</groupId>
+    <groupId>ru.javawebinar</groupId>
     <artifactId>restaurantvoting</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>war</packaging>
 
-    <name>restaurantvoting</name>
-    <description>restaurantvoting</description>
+    <name>Restaurant Voting</name>
     <properties>
         <java.version>17</java.version>
         <springdoc.version>1.5.6</springdoc.version>
