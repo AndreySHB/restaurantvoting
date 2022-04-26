@@ -38,4 +38,13 @@ public class Vote extends BaseEntity {
         this.restId = restId;
         this.localDate = localDate;
     }
+
+    @Override
+    public String toString() {
+        return "Vote{" +
+                "userId=" + userId +
+                ", restId=" + restId +
+                ", localDate=" + localDate +
+                '}';
+    }
 }

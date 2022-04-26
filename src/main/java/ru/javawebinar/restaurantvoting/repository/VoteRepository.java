@@ -12,6 +12,8 @@ import java.util.List;
 @Tag(name = "Vote Controller")
 @Transactional(readOnly = true)
 public interface VoteRepository extends BaseRepository<Vote> {
+
+    @Modifying
     @Query("SELECT v FROM Vote v WHERE v.localDate=:date")
     List<Vote> getAllByLocalDate(LocalDate date);
 
