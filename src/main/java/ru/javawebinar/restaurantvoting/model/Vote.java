@@ -25,11 +25,17 @@ public class Vote extends BaseEntity {
     private Integer restId;
 
     @Column(name = "voting_date")
-    private String localDate;
+    private LocalDate localDate;
 
     public Vote(Integer userId, Integer restaurantId) {
         this.userId = userId;
         this.restId = restaurantId;
-        this.localDate = LocalDate.now().toString();
+        this.localDate = LocalDate.now();
+    }
+
+    public Vote(Integer userId, Integer restId, LocalDate localDate) {
+        this.userId = userId;
+        this.restId = restId;
+        this.localDate = localDate;
     }
 }
