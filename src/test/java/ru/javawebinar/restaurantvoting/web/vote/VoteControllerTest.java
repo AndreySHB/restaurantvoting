@@ -1,5 +1,6 @@
 package ru.javawebinar.restaurantvoting.web.vote;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,13 +26,18 @@ import static ru.javawebinar.restaurantvoting.web.user.UserTestData.admin;
 import static ru.javawebinar.restaurantvoting.web.user.UserTestData.user;
 import static ru.javawebinar.restaurantvoting.web.vote.VoteTestData.*;
 
-public class VoteRestControllerTest extends AbstractControllerTest {
+public class VoteControllerTest extends AbstractControllerTest {
 
     private static final String REST_ADMIN_VOTES_URL = "/api/admin/votes/";
     private static final String REST_USER_VOTE_URL = "/api/vote/";
 
     @Autowired
     VoteRepository voteRepository;
+
+    @AfterEach //strange datapropagation behaviour
+    public void deletePropagatedVote(){
+        voteRepository.delete(INIT_VOTES_INBASE +1);
+    }
 
     @Test
     void getForToday() throws Exception {
@@ -84,7 +90,6 @@ public class VoteRestControllerTest extends AbstractControllerTest {
         VOTE_MATCHER.assertMatch(todayVotes, votesWithNew);
     }
 
-    //TODO bug fix
     @Test
     @Transactional(propagation = Propagation.NEVER)
     void voteForTomorrow() throws Exception {
@@ -93,8 +98,7 @@ public class VoteRestControllerTest extends AbstractControllerTest {
                 .with(userHttpBasic(user)))
                 .andExpect(status().isNoContent());
         List<Vote> tomorrowVotes = voteRepository.getAllByLocalDate(TOMORROW_DATE);
-        VOTE_MATCHER.assertMatch(tomorrowVotes.get(tomorrowVotes.size()-1)/*strange datapropagation bug*/,
-                userVoteTomorrow);
+        VOTE_MATCHER.assertMatch(tomorrowVotes, userVoteTomorrow);
     }
 
     @Test
@@ -127,4 +131,9 @@ public class VoteRestControllerTest extends AbstractControllerTest {
         VOTE_MATCHER.assertMatch(tomorrowVotes, adminVoteTomorrow);
     }
 
+    @Test
+    void voteUnauthorized() throws Exception {
+        perform(MockMvcRequestBuilders.post(REST_USER_VOTE_URL + "/100/"))
+                .andExpect(status().isUnauthorized());
+    }
 }

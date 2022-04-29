@@ -1,5 +1,6 @@
 package ru.javawebinar.restaurantvoting.util;
 
+import lombok.experimental.UtilityClass;
 import ru.javawebinar.restaurantvoting.model.Vote;
 
 import java.time.LocalTime;
@@ -8,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@UtilityClass
 public class VoteUtil {
 
     public static final LocalTime REFERENCE_TIME = LocalTime.of(11, 0);

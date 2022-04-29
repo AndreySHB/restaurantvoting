@@ -4,34 +4,34 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.validator.constraints.Range;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
 @Getter
 @Setter
 @Table(name = "votes", uniqueConstraints =
-@UniqueConstraint(columnNames = {"user_id", "voting_date"}))
+@UniqueConstraint(columnNames = {"user_id", "vote_date"}, name = "unique_user_vote_date_idx"))
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Vote extends BaseEntity {
+
+    @Range(min = 1)
     @Column(name = "user_id")
     private Integer userId;
 
+    @Range(min = 1)
     @Column(name = "restaurant_id")
     private Integer restId;
 
-    @Column(name = "voting_date")
+    @NotNull
+    @Column(name = "vote_date")
     private LocalDate localDate;
-
-    public Vote(Integer userId, Integer restaurantId) {
-        this.userId = userId;
-        this.restId = restaurantId;
-        this.localDate = LocalDate.now();
-    }
 
     public Vote(Integer userId, Integer restId, LocalDate localDate) {
         this.userId = userId;

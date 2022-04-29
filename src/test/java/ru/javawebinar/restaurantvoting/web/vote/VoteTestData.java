@@ -12,6 +12,8 @@ public class VoteTestData {
     public static final LocalDate OLD_DATE = LocalDate.of(2020, 2, 1);
     public static final LocalDate TOMORROW_DATE = LocalDate.now().plusDays(1);
 
+    public static final int INIT_VOTES_INBASE = 10;
+
     public static final int EXPECTED_WINNER_ID = 100;
 
     public static final Vote adminVote = new Vote(2, 100, CURRENT_DATE);
