@@ -24,24 +24,26 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static ru.javawebinar.restaurantvoting.TestUtil.userHttpBasic;
 import static ru.javawebinar.restaurantvoting.web.user.UserTestData.admin;
 import static ru.javawebinar.restaurantvoting.web.user.UserTestData.user;
+import static ru.javawebinar.restaurantvoting.web.vote.VoteController.ADMIN_VOTES;
+import static ru.javawebinar.restaurantvoting.web.vote.VoteController.USER_VOTE;
 import static ru.javawebinar.restaurantvoting.web.vote.VoteTestData.*;
 
 public class VoteControllerTest extends AbstractControllerTest {
 
-    private static final String REST_ADMIN_VOTES_URL = "/api/admin/votes/";
-    private static final String REST_USER_VOTE_URL = "/api/vote/";
+    private static final String ADMIN_VOTES_URL = ADMIN_VOTES + "/";
+    private static final String USER_VOTE_URL = USER_VOTE + "/";
 
     @Autowired
     VoteRepository voteRepository;
 
-    @AfterEach //strange datapropagation behaviour
-    public void deletePropagatedVote(){
-        voteRepository.delete(INIT_VOTES_INBASE +1);
+    @AfterEach
+    public void deletePropagatedVote() {
+        voteRepository.delete(NUM_VOTES_INBASE + 1);
     }
 
     @Test
     void getForToday() throws Exception {
-        perform(MockMvcRequestBuilders.get(REST_ADMIN_VOTES_URL + "for-today/")
+        perform(MockMvcRequestBuilders.get(ADMIN_VOTES_URL + "for-today/")
                 .with(userHttpBasic(admin)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -50,19 +52,28 @@ public class VoteControllerTest extends AbstractControllerTest {
 
     @Test
     void getByDate() throws Exception {
-        perform(MockMvcRequestBuilders.get(REST_ADMIN_VOTES_URL + "by-date/")
+        perform(MockMvcRequestBuilders.get(ADMIN_VOTES_URL + "by-date/")
                 .with(userHttpBasic(admin))
-                .param("date", OLD_DATE.toString()))
+                .param("date", YESTERDAY_DATE.toString()))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(VOTE_MATCHER.contentJson(votesOld));
     }
 
     @Test
+    void getByNullDate() throws Exception {
+        perform(MockMvcRequestBuilders.get(ADMIN_VOTES_URL + "by-date/")
+                .with(userHttpBasic(admin)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void getAll() throws Exception {
         ArrayList<Vote> votesAll = new ArrayList<>(votesOld);
         votesAll.addAll(votes);
-        perform(MockMvcRequestBuilders.get(REST_ADMIN_VOTES_URL)
+        votesAll.addAll(List.of(adminVoteTomorrow));
+
+        perform(MockMvcRequestBuilders.get(ADMIN_VOTES_URL)
                 .with(userHttpBasic(admin)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -71,19 +82,52 @@ public class VoteControllerTest extends AbstractControllerTest {
 
     @Test
     void getWinnerForToday() throws Exception {
-        ResultActions actions = perform(MockMvcRequestBuilders.get(REST_ADMIN_VOTES_URL + "winner-for-today/")
+        ResultActions actions = perform(MockMvcRequestBuilders.get(ADMIN_VOTES_URL + "winner-by-date/")
+                .param("date", LocalDate.now().toString())
                 .with(userHttpBasic(admin)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
-        Integer actualWinnerId = Integer.valueOf(actions.andReturn().getResponse().getContentAsString());
+        Integer actualWinnerId = Integer.valueOf(getContentAsString(actions));
         Assertions.assertEquals(EXPECTED_WINNER_ID, actualWinnerId);
     }
 
     @Test
-    @Transactional(propagation = Propagation.NEVER)
+    void getWinnerEmptyVotes() throws Exception {
+        ResultActions actions = perform(MockMvcRequestBuilders.get(ADMIN_VOTES_URL + "winner-by-date/")
+                .param("date", LocalDate.MAX.toString())
+                .with(userHttpBasic(admin)))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
+        Integer actualWinnerId = Integer.valueOf(getContentAsString(actions));
+        Assertions.assertEquals(EMPTY_VOTES_CODE, actualWinnerId);
+    }
+
+    @Test
+    void getWinnerAllEquals() throws Exception {
+        ResultActions actions = perform(MockMvcRequestBuilders.get(ADMIN_VOTES_URL + "winner-by-date/")
+                .param("date", YESTERDAY_DATE.toString())
+                .with(userHttpBasic(admin)))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
+        Integer actualWinnerId = Integer.valueOf(getContentAsString(actions));
+        Assertions.assertEquals(NO_WINNER_CODE, actualWinnerId);
+    }
+
+    @Test
+    void getVoteMap() throws Exception {
+        ResultActions actions = perform(MockMvcRequestBuilders.get(ADMIN_VOTES_URL + "votemap-by-date/")
+                .param("date", YESTERDAY_DATE.toString())
+                .with(userHttpBasic(admin)))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
+        String content = getContentAsString(actions);
+        Assertions.assertEquals(JSON_VOTE_MAP_OLD, content);
+    }
+
+    @Test
     void voteForToday() throws Exception {
         VoteUtil.setBoundaryTime(LocalTime.MAX);
-        perform(MockMvcRequestBuilders.post(REST_USER_VOTE_URL + "/100/")
+        perform(MockMvcRequestBuilders.post(USER_VOTE_URL + "/4/")
                 .with(userHttpBasic(user)))
                 .andExpect(status().isNoContent());
         List<Vote> todayVotes = voteRepository.getAllByLocalDate(LocalDate.now());
@@ -91,24 +135,23 @@ public class VoteControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    @Transactional(propagation = Propagation.NEVER)
     void voteForTomorrow() throws Exception {
         VoteUtil.setBoundaryTime(LocalTime.MIN);
-        perform(MockMvcRequestBuilders.post(REST_USER_VOTE_URL + "/100/")
+        perform(MockMvcRequestBuilders.post(USER_VOTE_URL + "/7/")
                 .with(userHttpBasic(user)))
                 .andExpect(status().isNoContent());
         List<Vote> tomorrowVotes = voteRepository.getAllByLocalDate(TOMORROW_DATE);
-        VOTE_MATCHER.assertMatch(tomorrowVotes, userVoteTomorrow);
+        VOTE_MATCHER.assertMatch(tomorrowVotes, userVoteTomorrow, adminVoteTomorrow);
     }
 
     @Test
     @Transactional(propagation = Propagation.NEVER)
     void revoteForToday() throws Exception {
         VoteUtil.setBoundaryTime(LocalTime.MAX);
-        perform(MockMvcRequestBuilders.post(REST_USER_VOTE_URL + "/200/")
+        perform(MockMvcRequestBuilders.post(USER_VOTE_URL + "/5/")
                 .with(userHttpBasic(admin)))
                 .andExpect(status().isNoContent());
-        adminVote.setRestId(200);
+        adminVote.setRestId(5);
         List<Vote> todayVotes = voteRepository.getAllByLocalDate(LocalDate.now());
         VOTE_MATCHER.assertMatch(todayVotes, votes);
     }
@@ -116,24 +159,24 @@ public class VoteControllerTest extends AbstractControllerTest {
     @Test
     @Transactional(propagation = Propagation.NEVER)
     void revoteForTomorrow() throws Exception {
-        VoteUtil.setBoundaryTime(LocalTime.MIN);
-        perform(MockMvcRequestBuilders.post(REST_USER_VOTE_URL + "/300/")
+        perform(MockMvcRequestBuilders.post(USER_VOTE_URL + "/7/")
                 .with(userHttpBasic(admin)))
                 .andExpect(status().isNoContent());
+        adminVoteTomorrow.setRestId(7);
         List<Vote> tomorrowVotes = voteRepository.getAllByLocalDate(TOMORROW_DATE);
-        VOTE_MATCHER.assertMatch(tomorrowVotes, adminVoteTomorrow);
-
-        perform(MockMvcRequestBuilders.post(REST_USER_VOTE_URL + "/200/")
-                .with(userHttpBasic(admin)))
-                .andExpect(status().isNoContent());
-        adminVoteTomorrow.setRestId(200);
-        tomorrowVotes = voteRepository.getAllByLocalDate(TOMORROW_DATE);
         VOTE_MATCHER.assertMatch(tomorrowVotes, adminVoteTomorrow);
     }
 
     @Test
     void voteUnauthorized() throws Exception {
-        perform(MockMvcRequestBuilders.post(REST_USER_VOTE_URL + "/100/"))
+        perform(MockMvcRequestBuilders.post(USER_VOTE_URL + "/4/"))
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    void voteForNotPresentRestaurant() throws Exception {
+        perform(MockMvcRequestBuilders.post(USER_VOTE_URL + "/1/")
+                .with(userHttpBasic(user)))
+                .andExpect(status().isForbidden());
     }
 }

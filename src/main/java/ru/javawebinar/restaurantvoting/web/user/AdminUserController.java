@@ -16,11 +16,11 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = AdminUserController.REST_URL, produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = AdminUserController.ADMIN_USERS, produces = MediaType.APPLICATION_JSON_VALUE)
 @Slf4j
 public class AdminUserController extends AbstractUserController {
 
-    static final String REST_URL = "/api/admin/users";
+    static final String ADMIN_USERS = "/api/admin/users";
 
     @Override
     @GetMapping("/{id}")
@@ -47,7 +47,7 @@ public class AdminUserController extends AbstractUserController {
         ValidationUtil.checkNew(user);
         User created = prepareAndSave(user);
         URI uriOfNewResource = ServletUriComponentsBuilder.fromCurrentContextPath()
-                .path(REST_URL + "/{id}")
+                .path(ADMIN_USERS + "/{id}")
                 .buildAndExpand(created.getId()).toUri();
         return ResponseEntity.created(uriOfNewResource).body(created);
     }

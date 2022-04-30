@@ -23,7 +23,7 @@ public class Restaurant extends NamedEntity {
     @Column(name = "lunch_date")
     private LocalDate lunchDate;
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.EAGER)
     @JoinColumn(name = "restaurant_id", referencedColumnName = "id")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<Meal> menu;

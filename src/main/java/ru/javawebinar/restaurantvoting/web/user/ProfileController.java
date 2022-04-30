@@ -18,10 +18,10 @@ import javax.validation.Valid;
 import java.net.URI;
 
 @RestController
-@RequestMapping(value = ProfileController.REST_URL, produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = ProfileController.USER_PROFILE, produces = MediaType.APPLICATION_JSON_VALUE)
 @Slf4j
 public class ProfileController extends AbstractUserController {
-    static final String REST_URL = "/api/profile";
+    static final String USER_PROFILE = "/api/profile";
 
     @GetMapping
     public User get(@AuthenticationPrincipal AuthUser authUser) {
@@ -41,7 +41,7 @@ public class ProfileController extends AbstractUserController {
         ValidationUtil.checkNew(userTo);
         User created = prepareAndSave(UserUtil.createNewFromTo(userTo));
         URI uriOfNewResource = ServletUriComponentsBuilder.fromCurrentContextPath()
-                .path(REST_URL).build().toUri();
+                .path(USER_PROFILE).build().toUri();
         return ResponseEntity.created(uriOfNewResource).body(created);
     }
 

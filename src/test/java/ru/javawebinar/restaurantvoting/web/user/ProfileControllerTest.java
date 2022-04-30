@@ -17,6 +17,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static ru.javawebinar.restaurantvoting.TestUtil.userHttpBasic;
+import static ru.javawebinar.restaurantvoting.web.user.ProfileController.USER_PROFILE;
 import static ru.javawebinar.restaurantvoting.web.user.UserTestData.*;
 
 class ProfileControllerTest extends AbstractControllerTest {
@@ -26,7 +27,7 @@ class ProfileControllerTest extends AbstractControllerTest {
 
     @Test
     void get() throws Exception {
-        perform(MockMvcRequestBuilders.get(ProfileController.REST_URL)
+        perform(MockMvcRequestBuilders.get(USER_PROFILE)
                 .with(userHttpBasic(user)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -35,13 +36,13 @@ class ProfileControllerTest extends AbstractControllerTest {
 
     @Test
     void getUnAuth() throws Exception {
-        perform(MockMvcRequestBuilders.get(ProfileController.REST_URL))
+        perform(MockMvcRequestBuilders.get(USER_PROFILE))
                 .andExpect(status().isUnauthorized());
     }
 
     @Test
     void delete() throws Exception {
-        perform(MockMvcRequestBuilders.delete(ProfileController.REST_URL)
+        perform(MockMvcRequestBuilders.delete(USER_PROFILE)
                 .with(userHttpBasic(user)))
                 .andExpect(status().isNoContent());
         USER_MATCHER.assertMatch(userRepository.findAll(), admin, masha, dasha, sasha, pasha);
@@ -51,7 +52,7 @@ class ProfileControllerTest extends AbstractControllerTest {
     void register() throws Exception {
         UserTo newTo = new UserTo(null, "newName", "newemail@ya.ru", "newPassword");
         User newUser = UserUtil.createNewFromTo(newTo);
-        ResultActions action = perform(MockMvcRequestBuilders.post(ProfileController.REST_URL)
+        ResultActions action = perform(MockMvcRequestBuilders.post(USER_PROFILE)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.writeValue(newTo)))
                 .andDo(print())
@@ -67,7 +68,7 @@ class ProfileControllerTest extends AbstractControllerTest {
     @Test
     void update() throws Exception {
         UserTo updatedTo = new UserTo(null, "newName", USER_MAIL, "newPassword");
-        perform(MockMvcRequestBuilders.put(ProfileController.REST_URL).contentType(MediaType.APPLICATION_JSON)
+        perform(MockMvcRequestBuilders.put(USER_PROFILE).contentType(MediaType.APPLICATION_JSON)
                 .with(userHttpBasic(user))
                 .content(JsonUtil.writeValue(updatedTo)))
                 .andDo(print())
@@ -79,7 +80,7 @@ class ProfileControllerTest extends AbstractControllerTest {
     @Test
     void registerInvalid() throws Exception {
         UserTo newTo = new UserTo(null, null, null, null);
-        perform(MockMvcRequestBuilders.post(ProfileController.REST_URL)
+        perform(MockMvcRequestBuilders.post(USER_PROFILE)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.writeValue(newTo)))
                 .andDo(print())
@@ -89,7 +90,7 @@ class ProfileControllerTest extends AbstractControllerTest {
     @Test
     void updateInvalid() throws Exception {
         UserTo updatedTo = new UserTo(null, null, "password", null);
-        perform(MockMvcRequestBuilders.put(ProfileController.REST_URL)
+        perform(MockMvcRequestBuilders.put(USER_PROFILE)
                 .with(userHttpBasic(user))
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(JsonUtil.writeValue(updatedTo)))
@@ -100,7 +101,7 @@ class ProfileControllerTest extends AbstractControllerTest {
     @Test
     void updateDuplicate() throws Exception {
         UserTo updatedTo = new UserTo(null, "newName", ADMIN_MAIL, "newPassword");
-        perform(MockMvcRequestBuilders.put(ProfileController.REST_URL).contentType(MediaType.APPLICATION_JSON)
+        perform(MockMvcRequestBuilders.put(USER_PROFILE).contentType(MediaType.APPLICATION_JSON)
                 .with(userHttpBasic(user))
                 .content(JsonUtil.writeValue(updatedTo)))
                 .andDo(print())

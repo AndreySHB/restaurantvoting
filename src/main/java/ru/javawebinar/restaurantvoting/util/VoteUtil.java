@@ -1,7 +1,6 @@
 package ru.javawebinar.restaurantvoting.util;
 
 import lombok.experimental.UtilityClass;
-import ru.javawebinar.restaurantvoting.model.Vote;
 
 import java.time.LocalTime;
 import java.util.Collections;
@@ -20,8 +19,17 @@ public class VoteUtil {
         BOUNDARY_TIME = lt;
     }
 
-    public static int getWinner(List<Vote> votes) {
-        Map<Integer, Long> voteMap = votes.stream().collect(Collectors.groupingBy(Vote::getRestId, Collectors.counting()));
-        return votes.isEmpty() ? 0 : Collections.max(voteMap.entrySet(), (o1, o2) -> Math.toIntExact(o1.getValue() - o2.getValue())).getKey();
+    public static int getWinner(List<Integer> votes) {
+        Map<Integer, Long> voteMap = getVoteMap(votes);
+        boolean isValid = !votes.isEmpty();
+        if (!isValid) {
+            return -1;
+        }
+        isValid = !voteMap.values().stream().allMatch(voteMap.get(votes.get(0))::equals);
+        return isValid ? Collections.max(voteMap.entrySet(), (o1, o2) -> Math.toIntExact(o1.getValue() - o2.getValue())).getKey() : 0;
+    }
+
+    public static Map<Integer, Long> getVoteMap(List<Integer> votes) {
+        return votes.stream().collect(Collectors.groupingBy(integer -> integer, Collectors.counting()));
     }
 }

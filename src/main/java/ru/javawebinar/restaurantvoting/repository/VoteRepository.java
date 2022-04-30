@@ -13,15 +13,17 @@ import java.util.List;
 @Transactional(readOnly = true)
 public interface VoteRepository extends BaseRepository<Vote> {
 
-    @Modifying
-    @Query("SELECT v FROM Vote v WHERE v.localDate=:date")
+    @Query("SELECT v FROM Vote v WHERE v.localDate=:date ORDER BY v.userId")
     List<Vote> getAllByLocalDate(LocalDate date);
 
-    @Query("SELECT v FROM Vote v")
+    @Query("SELECT v FROM Vote v ORDER BY v.localDate, v.userId")
     List<Vote> getAll();
 
     @Modifying
     @Transactional
     @Query("UPDATE Vote v SET v.restId = :restId WHERE v.localDate=:localDate AND v.userId=:userId")
     void update(int userId, int restId, LocalDate localDate);
+
+    @Query("SELECT v.restId FROM Vote v WHERE v.localDate=:date")
+    List<Integer> getAllOnlyIdsByLocalDate(LocalDate date);
 }
