@@ -30,7 +30,7 @@ public abstract class AbstractUserController {
 
     public void delete(int id) {
         log.info("delete {}", id);
-        repository.deleteExisted(id);
+        repository.delete(id);
     }
 
     protected User prepareAndSave(User user) {

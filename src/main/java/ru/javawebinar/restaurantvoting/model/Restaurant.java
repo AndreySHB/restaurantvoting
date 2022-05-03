@@ -24,9 +24,14 @@ public class Restaurant extends NamedEntity {
     private LocalDate lunchDate;
 
     @OneToMany(fetch = FetchType.EAGER)
-    @JoinColumn(name = "restaurant_id", referencedColumnName = "id")
+    @JoinColumn(name = "rest_id", referencedColumnName = "id")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<Meal> menu;
+
+    public Restaurant(String name, LocalDate lunchDate) {
+        super(null, name);
+        this.lunchDate = lunchDate;
+    }
 
     @Override
     public String toString() {

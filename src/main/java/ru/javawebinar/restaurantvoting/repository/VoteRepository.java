@@ -1,6 +1,7 @@
 package ru.javawebinar.restaurantvoting.repository;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,7 +12,7 @@ import java.util.List;
 
 @Tag(name = "Vote Controller")
 @Transactional(readOnly = true)
-public interface VoteRepository extends BaseRepository<Vote> {
+public interface VoteRepository extends JpaRepository<Vote, Integer> {
 
     @Query("SELECT v FROM Vote v WHERE v.localDate=:date ORDER BY v.userId")
     List<Vote> getAllByLocalDate(LocalDate date);
@@ -26,4 +27,9 @@ public interface VoteRepository extends BaseRepository<Vote> {
 
     @Query("SELECT v.restId FROM Vote v WHERE v.localDate=:date")
     List<Integer> getAllOnlyIdsByLocalDate(LocalDate date);
+
+    @Transactional
+    @Modifying
+    @Query("DELETE FROM Vote v WHERE v.id=:id")
+    int delete(int id);
 }

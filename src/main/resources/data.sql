@@ -44,7 +44,7 @@ VALUES ('AFRIKANSKIY', now() - interval 1 day),
        ('ASIATKIY', now() + interval 1 day),
        ('ARGENTINSKIY', now() + interval 1 day);
 
-INSERT INTO MEALS (NAME, PRICE, RESTAURANT_ID)
+INSERT INTO MEALS (NAME, PRICE, REST_ID)
 VALUES ('JUK', 10, 1),
        ('BOBI', 20, 1),
        ('KENGURU', 90, 2),
@@ -53,10 +53,10 @@ VALUES ('JUK', 10, 1),
        ('POHLEBKA', 30, 3),
 
        ('HACHAPURI', 50, 4),
-       ('LEPECHKA', 10, 4),
+       ('LEPECHKA', 20, 4),
        ('KASHA', 40, 5),
        ('KOMPOT', 20, 5),
-       ('SHAHLIK', 80, 6),
+       ('SHASHLIK', 80, 6),
        ('BANAN', 10, 6),
 
        ('PURE', 20, 7),

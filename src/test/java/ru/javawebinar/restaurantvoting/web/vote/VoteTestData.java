@@ -8,6 +8,7 @@ import java.util.List;
 
 public class VoteTestData {
     public static final MatcherFactory.Matcher<Vote> VOTE_MATCHER = MatcherFactory.usingIgnoringFieldsComparator(Vote.class, "id");
+
     public static final LocalDate CURRENT_DATE = LocalDate.now();
     public static final LocalDate YESTERDAY_DATE = LocalDate.now().minusDays(1);
     public static final LocalDate TOMORROW_DATE = LocalDate.now().plusDays(1);
