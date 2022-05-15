@@ -31,6 +31,11 @@ public class Restaurant extends NamedEntity {
         super(null, name);
     }
 
+    public Restaurant(int id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
     @Override
     public String toString() {
         return "Restaurant{" +

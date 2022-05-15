@@ -20,7 +20,6 @@ import java.time.LocalDate;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Vote extends BaseEntity {
 
-    @NotNull
     @Column(name = "user_id", nullable = false, updatable = false)
     private Integer userId;
 
@@ -28,7 +27,6 @@ public class Vote extends BaseEntity {
     @Column(name = "rest_id", nullable = false)
     private Integer restId;
 
-    @NotNull
     @Column(name = "vote_date" , nullable = false, updatable = false)
     private LocalDate localDate;
 

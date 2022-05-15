@@ -17,22 +17,17 @@ public interface VoteRepository extends JpaRepository<Vote, Integer> {
     @Query("SELECT v FROM Vote v WHERE v.localDate=:date ORDER BY v.userId")
     List<Vote> getAllByLocalDate(LocalDate date);
 
-    @Query("SELECT v FROM Vote v ORDER BY v.localDate, v.userId")
-    List<Vote> getAll();
-
     @Modifying
     @Transactional
-    @Query("UPDATE Vote v SET v.restId = :restId WHERE v.localDate=:localDate AND v.userId=:userId")
-    Vote update(int userId, int restId, LocalDate localDate);
+    @Query("UPDATE Vote v SET v.restId = :restId WHERE  v.userId=:userId AND v.localDate=:localDate")
+    void update(int userId, int restId, LocalDate localDate);
 
     @Query("SELECT v.restId FROM Vote v WHERE v.localDate=:date")
     List<Integer> getAllOnlyIdsByLocalDate(LocalDate date);
 
-    @Transactional
-    @Modifying
-    @Query("DELETE FROM Vote v WHERE v.id=:id")
-    int delete(int id);
-
     @Query("SELECT v FROM Vote v WHERE v.userId = :userId AND v.localDate = :date")
-    Vote getByDateUserID(LocalDate date, int userId);
+    Vote getByUserIdDate(int userId, LocalDate dat);
+
+    @Query("SELECT v FROM Vote v WHERE v.userId = :userId order by v.localDate DESC")
+    List<Vote> getAllUserVotes(int userId);
 }

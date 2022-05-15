@@ -33,16 +33,23 @@ public class Dish extends NamedEntity {
     @Column(name = "lunch_date", nullable = false)
     private LocalDate lunchDate;
 
-    public Dish(String name, int price) {
+    public Dish(String name, int price, LocalDate lunchDate) {
         super(null, name);
         this.price = price;
+        this.lunchDate = lunchDate;
+    }
+
+    public Dish(String name, int price, LocalDate lunchDate, int restId) {
+        this(name, price, lunchDate);
+        this.restId = restId;
     }
 
     @Override
     public String toString() {
-        return "Meal{" +
+        return "Dish{" +
                 "price=" + price +
-                ", name='" + name + '\'' +
+                ", restId=" + restId +
+                ", lunchDate=" + lunchDate +
                 '}';
     }
 }

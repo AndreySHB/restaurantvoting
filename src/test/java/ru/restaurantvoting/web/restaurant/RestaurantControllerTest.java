@@ -4,21 +4,17 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.web.util.NestedServletException;
 import ru.restaurantvoting.TestUtil;
 import ru.restaurantvoting.repository.DishRepository;
 import ru.restaurantvoting.repository.RestaurantRepository;
-import ru.restaurantvoting.util.VoteUtil;
+import ru.restaurantvoting.util.JsonUtil;
 import ru.restaurantvoting.web.AbstractControllerTest;
 import ru.restaurantvoting.web.user.UserTestData;
-import ru.restaurantvoting.web.vote.VoteTestData;
-
-import java.time.LocalTime;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static ru.restaurantvoting.web.restaurant.RestaurantTestData.*;
 
 public class RestaurantControllerTest extends AbstractControllerTest {
 
@@ -28,81 +24,33 @@ public class RestaurantControllerTest extends AbstractControllerTest {
     @Autowired
     DishRepository dishRepository;
 
+
     @Test
-    void getAllByDate() throws Exception {
-        perform(MockMvcRequestBuilders.get(RestaurantController.ADMIN_RESTAURANTS + "by-date")
-                .param("date", VoteTestData.YESTERDAY_DATE.toString())
+    void getAll() throws Exception {
+        perform(MockMvcRequestBuilders.get(RestaurantController.USER_RESTAURANTS)
                 .with(TestUtil.userHttpBasic(UserTestData.admin)))
                 .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
-                /*.andExpect(RestaurantTestData.RESTAURANT_MATCHER.contentJson(RestaurantTestData.yesterdayRests));*/
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(RestaurantTestData.RESTAURANT_MATCHER.contentJson(ALL_RESTS));
     }
+
 
     @Test
     void getAllForToday() throws Exception {
-        perform(MockMvcRequestBuilders.get(RestaurantController.USER_RESTAURANTS + "for-today")
+        perform(MockMvcRequestBuilders.get(RestaurantController.USER_RESTAURANTS)
                 .with(TestUtil.userHttpBasic(UserTestData.user)))
                 .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
-                /*.andExpect(RestaurantTestData.RESTAURANT_MATCHER.contentJson(RestaurantTestData.todayRests));*/
-    }
-
-    @Test
-    void getAllForTomorrow() throws Exception {
-        perform(MockMvcRequestBuilders.get(RestaurantController.USER_RESTAURANTS + "for-tomorrow")
-                .with(TestUtil.userHttpBasic(UserTestData.user)))
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
-                /*.andExpect(RestaurantTestData.RESTAURANT_MATCHER.contentJson(RestaurantTestData.tomorrowRests));*/
-    }
-
-    @Test
-    void getAllForVotingIsToday() throws Exception {
-        VoteUtil.setBoundaryTime(LocalTime.MAX);
-        perform(MockMvcRequestBuilders.get(RestaurantController.USER_RESTAURANTS + "for-voting")
-                .with(TestUtil.userHttpBasic(UserTestData.user)))
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
-                /*.andExpect(RestaurantTestData.RESTAURANT_MATCHER.contentJson(RestaurantTestData.todayRests));*/
-    }
-
-    @Test
-    void getAllForVotingIsTomorrow() throws Exception {
-        VoteUtil.setBoundaryTime(LocalTime.MIN);
-        perform(MockMvcRequestBuilders.get(RestaurantController.USER_RESTAURANTS + "for-voting")
-                .with(TestUtil.userHttpBasic(UserTestData.user)))
-                .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
-                /*.andExpect(RestaurantTestData.RESTAURANT_MATCHER.contentJson(RestaurantTestData.tomorrowRests));*/
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(RestaurantTestData.RESTAURANT_MATCHER.contentJson(ALL_RESTS));
     }
 
     @Test
     void getById() throws Exception {
-        ResultActions actions = perform(MockMvcRequestBuilders.get(RestaurantController.USER_RESTAURANTS + "1")
-                .with(TestUtil.userHttpBasic(UserTestData.admin)))
+        perform(MockMvcRequestBuilders.get(RestaurantController.USER_RESTAURANTS + "1")
+                .with(TestUtil.userHttpBasic(UserTestData.user)))
                 .andExpect(status().isOk())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
-                /*.andExpect(RestaurantTestData.RESTAURANT_MATCHER.contentJson(RestaurantTestData.rest1));*/
-
-        /*Restaurant restaurant = RestaurantTestData.RESTAURANT_MATCHER.readFromJson(actions);
-        DishTestData.DISH_MATCHER.assertMatch(restaurant.getMenu(), DishTestData.REST_1_DISHES);*/
-    }
-
-    @Test
-    void updateNameById() throws Exception {
-        perform(MockMvcRequestBuilders.post(RestaurantController.ADMIN_RESTAURANTS + "1")
-                .param("name", "newName")
-                .with(TestUtil.userHttpBasic(UserTestData.admin)))
-                .andExpect(status().isNoContent());
-        Assertions.assertEquals("newName", restaurantRepository.getById(1).getName());
-    }
-
-    @Test
-    void updateByIdBadName() throws Exception {
-        Assertions.assertThrows(NestedServletException.class, () ->
-                perform(MockMvcRequestBuilders.post(RestaurantController.ADMIN_RESTAURANTS + "1")
-                        .param("name", "")
-                        .with(TestUtil.userHttpBasic(UserTestData.admin))));
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(RestaurantTestData.RESTAURANT_MATCHER.contentJson(REST1));
     }
 
     @Test
@@ -112,27 +60,37 @@ public class RestaurantControllerTest extends AbstractControllerTest {
                 .andExpect(status().isNoContent());
 
         Assertions.assertNull(restaurantRepository.getById(1));
-        Assertions.assertTrue(dishRepository.getAllByRestId(1).isEmpty());
     }
 
-   /* @Test
+    @Test
     void create() throws Exception {
         perform(MockMvcRequestBuilders.post(RestaurantController.ADMIN_RESTAURANTS)
                 .with(TestUtil.userHttpBasic(UserTestData.admin))
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtil.writeValue(RestaurantTestData.restNew)))
+                .content(JsonUtil.writeValue(NEW_REST)))
+                .andExpect(status().isCreated());
+
+        NEW_REST.setId(4);
+        RESTAURANT_MATCHER.assertMatch(restaurantRepository.getById(4), NEW_REST);
+    }
+
+    @Test
+    void update() throws Exception {
+        perform(MockMvcRequestBuilders.put(RestaurantController.ADMIN_RESTAURANTS + "1")
+                .with(TestUtil.userHttpBasic(UserTestData.admin))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(JsonUtil.writeValue(UPDATED_REST1)))
                 .andExpect(status().isNoContent());
 
-        *//*RestaurantTestData.RESTAURANT_MATCHER.assertMatch(restaurantRepository
-                .getByNameDate(RestaurantTestData.restNew.getName(), RestaurantTestData.restNew.getLunchDate()), RestaurantTestData.restNew);*//*
-    }*/
+//        RESTAURANT_MATCHER.assertMatch(restaurantRepository.getById(1), REST1); TODO
+    }
 
-   /* @Test
+    @Test
     void createInvalid() throws Exception {
         perform(MockMvcRequestBuilders.post(RestaurantController.ADMIN_RESTAURANTS)
                 .with(TestUtil.userHttpBasic(UserTestData.admin))
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtil.writeValue(RestaurantTestData.restNewInvalid)))
+                .content(JsonUtil.writeValue(NEW_REST_INVALID)))
                 .andExpect(status().isUnprocessableEntity());
-    }*/
+    }
 }

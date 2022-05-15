@@ -2,6 +2,7 @@ package ru.restaurantvoting.web.dish;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -13,52 +14,47 @@ import ru.restaurantvoting.util.validation.ValidationUtil;
 
 import javax.validation.Valid;
 import java.net.URI;
-import java.util.List;
 
 @RestController
 @Slf4j
 @RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 public class DishController {
-    public static final String ADMIN_DISH = "/api/admin/dish/";
     public static final String ADMIN_DISHES = "/api/admin/dishes/";
 
     @Autowired
     DishRepository repository;
 
-    @GetMapping(ADMIN_DISHES + "{restId}")
-    List<Dish> getAllByRestId(@PathVariable int restId) {
-        log.info("getAllMealsByRestId {}", restId);
-        return repository.getAllByRestId(restId);
-    }
-
-    @GetMapping(ADMIN_DISH + "{id}")
-    Dish getById(@PathVariable int id) {
+    @GetMapping(ADMIN_DISHES + "{id}")
+    public Dish getById(@PathVariable int id) {
         log.info("getMealById {}", id);
         return repository.getById(id);
     }
 
-    @DeleteMapping(ADMIN_DISH + "{id}")
+    @CacheEvict(value = "dishes", allEntries = true)
+    @DeleteMapping(ADMIN_DISHES + "{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    void deleteById(@PathVariable int id) {
+    public void delete(@PathVariable int id) {
         log.info("deleteMealById {}", id);
-        repository.delete(id);
+        repository.deleteById(id);
     }
 
-    @PutMapping(ADMIN_DISH + "update/{id}")
+    @CacheEvict(value = "dishes", allEntries = true)
+    @PutMapping(ADMIN_DISHES + "{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    void update(@PathVariable int id, @Valid @RequestBody Dish dish) {
-        ValidationUtil.checkNew(dish);
+    public void update(@PathVariable int id, @Valid @RequestBody Dish dish) {
+        ValidationUtil.assureIdConsistent(dish, id);
         log.info("updating dish {}", id);
-        dish.setId(id);
         repository.save(dish);
     }
 
-    @PostMapping(ADMIN_DISH)
+    @CacheEvict(value = "dishes", allEntries = true)
+    @PostMapping(ADMIN_DISHES)
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    ResponseEntity<Dish> create(@Valid @RequestBody Dish dish) {
+    public ResponseEntity<Dish> create(@Valid @RequestBody Dish dish) {
+        ValidationUtil.checkNew(dish);
         log.info("creating new dish {}", dish);
         URI uriOfNewResource = ServletUriComponentsBuilder.fromCurrentContextPath()
-                .path(ADMIN_DISH).build().toUri();
+                .path(ADMIN_DISHES).build().toUri();
         Dish created = repository.save(dish);
         return ResponseEntity.created(uriOfNewResource).body(created);
     }
