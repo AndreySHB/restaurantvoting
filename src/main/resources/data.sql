@@ -15,7 +15,13 @@ VALUES ('USER', 1),
        ('USER', 5),
        ('USER', 6);
 
-INSERT INTO VOTES (USER_ID, RESTAURANT_ID, VOTE_DATE)
+INSERT INTO RESTAURANT (NAME)
+VALUES
+       ('BELORYSKIY'),
+       ('ASIATKIY'),
+       ('ARGENTINSKIY');
+
+INSERT INTO VOTE (USER_ID, REST_ID, VOTE_DATE)
 VALUES (1, 1, now() - interval 1 day),
        (2, 1, now() - interval 1 day),
        (3, 2, now() - interval 1 day),
@@ -23,45 +29,30 @@ VALUES (1, 1, now() - interval 1 day),
        (5, 3, now() - interval 1 day),
        (6, 3, now() - interval 1 day),
 
-       (2, 4, now()),
-       (3, 6, now()),
-       (4, 4, now()),
-       (5, 5, now()),
-       (6, 4, now()),
+       (2, 1, now()),
+       (3, 1, now()),
+       (4, 2, now()),
+       (5, 2, now()),
+       (6, 2, now());
 
-       (2, 8, now() + interval 1 day);
+INSERT INTO DISH (NAME, PRICE, REST_ID, LUNCH_DATE)
+VALUES ('JUK', 10, 1, now() - interval 1 day),
+       ('BOBI', 20, 1, now() - interval 1 day),
+       ('KENGURU', 90, 2, now() - interval 1 day),
+       ('MEDUZA', 20, 2, now() - interval 1 day),
+       ('LEPECHKA', 10, 3, now() - interval 1 day),
+       ('POHLEBKA', 30, 3, now() - interval 1 day),
 
-INSERT INTO RESTAURANTS (NAME, LUNCH_DATE)
-VALUES ('AFRIKANSKIY', now() - interval 1 day),
-       ('AVSTRALIYSKIY', now() - interval 1 day),
-       ('SLOVACKIY', now() - interval 1 day),
+       ('HACHAPURI', 50, 1, now()),
+       ('LEPECHKA', 20, 1, now()),
+       ('KASHA', 40, 2, now()),
+       ('KOMPOT', 20, 2, now()),
+       ('SHASHLIK', 80, 3, now()),
+       ('BANAN', 10, 3, now()),
 
-       ('GRUZINSKIY', now()),
-       ('RUSSKIY', now()),
-       ('ARMANSKIY', now()),
-
-       ('BELORYSKIY', now() + interval 1 day),
-       ('ASIATKIY', now() + interval 1 day),
-       ('ARGENTINSKIY', now() + interval 1 day);
-
-INSERT INTO MEALS (NAME, PRICE, REST_ID)
-VALUES ('JUK', 10, 1),
-       ('BOBI', 20, 1),
-       ('KENGURU', 90, 2),
-       ('MEDUZA', 20, 2),
-       ('LEPECHKA', 10, 3),
-       ('POHLEBKA', 30, 3),
-
-       ('HACHAPURI', 50, 4),
-       ('LEPECHKA', 20, 4),
-       ('KASHA', 40, 5),
-       ('KOMPOT', 20, 5),
-       ('SHASHLIK', 80, 6),
-       ('BANAN', 10, 6),
-
-       ('PURE', 20, 7),
-       ('SIRNIKI', 30, 7),
-       ('LAVASH', 10, 8),
-       ('BARAN', 70, 8),
-       ('KREVETKA', 20, 9),
-       ('MASAMORA', 30, 9);
+       ('PURE', 20, 1, now() + interval 1 day),
+       ('SIRNIKI', 30, 1, now() + interval 1 day),
+       ('LAVASH', 10, 2, now() + interval 1 day),
+       ('BARAN', 70, 2, now() + interval 1 day),
+       ('KREVETKA', 20, 3, now() + interval 1 day),
+       ('MASAMORA', 30, 3, now() + interval 1 day);
