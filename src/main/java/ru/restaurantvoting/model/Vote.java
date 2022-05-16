@@ -20,6 +20,7 @@ import java.time.LocalDate;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Vote extends BaseEntity {
 
+    @NotNull
     @Column(name = "user_id", nullable = false, updatable = false)
     private Integer userId;
 

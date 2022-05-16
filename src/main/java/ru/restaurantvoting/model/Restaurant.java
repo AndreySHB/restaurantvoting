@@ -18,12 +18,12 @@ import java.util.List;
 public class Restaurant extends NamedEntity {
 
     @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "rest_id", referencedColumnName = "id")
+    @JoinColumn(name = "rest_id", referencedColumnName = "id", updatable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private List<Dish> menu;
+    private List<Dish> dishes;
 
     @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "rest_id", referencedColumnName = "id")
+    @JoinColumn(name = "rest_id", referencedColumnName = "id", updatable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<Vote> votes;
 

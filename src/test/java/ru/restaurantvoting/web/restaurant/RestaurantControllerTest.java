@@ -82,7 +82,7 @@ public class RestaurantControllerTest extends AbstractControllerTest {
                 .content(JsonUtil.writeValue(UPDATED_REST1)))
                 .andExpect(status().isNoContent());
 
-//        RESTAURANT_MATCHER.assertMatch(restaurantRepository.getById(1), REST1); TODO
+        RESTAURANT_MATCHER.assertMatch(restaurantRepository.getById(1), UPDATED_REST1);
     }
 
     @Test
@@ -90,7 +90,7 @@ public class RestaurantControllerTest extends AbstractControllerTest {
         perform(MockMvcRequestBuilders.post(RestaurantController.ADMIN_RESTAURANTS)
                 .with(TestUtil.userHttpBasic(UserTestData.admin))
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtil.writeValue(NEW_REST_INVALID)))
+                .content(JsonUtil.writeValue(NEW_REST_INVALIDNAME)))
                 .andExpect(status().isUnprocessableEntity());
     }
 }

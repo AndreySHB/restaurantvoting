@@ -60,7 +60,7 @@ public class User extends NamedEntity implements HasIdAndEmail, Serializable {
     private Set<Role> roles;
 
     @OneToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @JoinColumn(name = "user_id", referencedColumnName = "id", updatable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<Vote> votes;
 
