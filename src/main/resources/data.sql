@@ -47,8 +47,6 @@ VALUES ('JUK', 10, 1, now() - interval 1 day),
        ('LEPECHKA', 20, 1, now()),
        ('KASHA', 40, 2, now()),
        ('KOMPOT', 20, 2, now()),
-       ('SHASHLIK', 80, 3, now()),
-       ('BANAN', 10, 3, now()),
 
        ('PURE', 20, 1, now() + interval 1 day),
        ('SIRNIKI', 30, 1, now() + interval 1 day),

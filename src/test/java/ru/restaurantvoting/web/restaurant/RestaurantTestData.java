@@ -22,4 +22,6 @@ public class RestaurantTestData {
 
     public static final List<Restaurant> ALL_RESTS = List.of(REST1, REST2, REST3);
 
+    public static final List<Restaurant> RESTS_WITH_MENU_FOR_TODAY = List.of(REST2, REST1);
+
 }

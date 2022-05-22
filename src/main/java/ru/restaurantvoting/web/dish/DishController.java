@@ -3,6 +3,7 @@ package ru.restaurantvoting.web.dish;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -14,12 +15,15 @@ import ru.restaurantvoting.util.validation.ValidationUtil;
 
 import javax.validation.Valid;
 import java.net.URI;
+import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @Slf4j
 @RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 public class DishController {
     public static final String ADMIN_DISHES = "/api/admin/dishes/";
+    public static final String USER_DISHES = "/api/dishes/";
 
     @Autowired
     DishRepository repository;
@@ -57,5 +61,12 @@ public class DishController {
                 .path(ADMIN_DISHES).build().toUri();
         Dish created = repository.save(dish);
         return ResponseEntity.created(uriOfNewResource).body(created);
+    }
+
+    @Cacheable("dishes")
+    @GetMapping(USER_DISHES)
+    public List<Dish> getDishesForRestaurantForToday(@RequestParam int restId) {
+        log.info("getRestaurantMenu {}", restId);
+        return repository.getAllByRestIdDate(restId, LocalDate.now());
     }
 }

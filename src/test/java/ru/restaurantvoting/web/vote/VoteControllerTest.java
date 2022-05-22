@@ -8,11 +8,9 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.util.NestedServletException;
 import ru.restaurantvoting.TestUtil;
 import ru.restaurantvoting.model.Vote;
 import ru.restaurantvoting.repository.VoteRepository;
-import ru.restaurantvoting.util.JsonUtil;
 import ru.restaurantvoting.util.VoteUtil;
 import ru.restaurantvoting.web.AbstractControllerTest;
 import ru.restaurantvoting.web.user.UserTestData;
@@ -97,12 +95,20 @@ public class VoteControllerTest extends AbstractControllerTest {
     void voteForToday() throws Exception {
         VoteUtil.setBoundaryTime(LocalTime.MAX);
         perform(MockMvcRequestBuilders.post(VoteController.USER_VOTES)
-                .contentType(MediaType.APPLICATION_JSON)
                 .with(TestUtil.userHttpBasic(UserTestData.user))
-                .content(JsonUtil.writeValue(newUserVote)))
+                .param("restId", "2"))
                 .andExpect(status().isCreated());
         List<Vote> todayVotes = voteRepository.getAllByLocalDate(LocalDate.now());
         VOTE_MATCHER.assertMatch(todayVotes, votesWithNew);
+    }
+
+    @Test
+    void voteForTodayNotPresentRest() throws Exception {
+        VoteUtil.setBoundaryTime(LocalTime.MAX);
+        perform(MockMvcRequestBuilders.post(VoteController.USER_VOTES)
+                .with(TestUtil.userHttpBasic(UserTestData.user))
+                .param("restId", "3"))
+                .andExpect(status().isUnprocessableEntity());
     }
 
     @Test
@@ -110,7 +116,6 @@ public class VoteControllerTest extends AbstractControllerTest {
     void revote() throws Exception {
         VoteUtil.setBoundaryTime(LocalTime.MAX);
         perform(MockMvcRequestBuilders.patch(VoteController.USER_VOTES)
-                .contentType(MediaType.APPLICATION_JSON)
                 .param("restId", "2")
                 .with(TestUtil.userHttpBasic(UserTestData.admin)))
                 .andExpect(status().isOk());
@@ -123,7 +128,6 @@ public class VoteControllerTest extends AbstractControllerTest {
     void revoteToLate() throws Exception {
         VoteUtil.setBoundaryTime(LocalTime.MIN);
         perform(MockMvcRequestBuilders.patch(VoteController.USER_VOTES)
-                .contentType(MediaType.APPLICATION_JSON)
                 .param("restId", "2")
                 .with(TestUtil.userHttpBasic(UserTestData.admin)))
                 .andExpect(status().isConflict());
@@ -133,15 +137,5 @@ public class VoteControllerTest extends AbstractControllerTest {
     void voteUnauthorized() throws Exception {
         perform(MockMvcRequestBuilders.post(VoteController.USER_VOTES))
                 .andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    void revoteNotPresent() throws Exception {
-        VoteUtil.setBoundaryTime(LocalTime.MAX);
-        Assertions.assertThrows(NestedServletException.class, () ->
-                perform(MockMvcRequestBuilders.patch(VoteController.USER_VOTES)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .param("restId", "20")
-                        .with(TestUtil.userHttpBasic(UserTestData.admin))).andExpect(status().isOk()));
     }
 }

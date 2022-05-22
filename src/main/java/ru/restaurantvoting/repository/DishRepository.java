@@ -9,22 +9,15 @@ import ru.restaurantvoting.model.Dish;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Set;
 
 @Tag(name = "Dish Controller")
 @Transactional(readOnly = true)
 public interface DishRepository extends JpaRepository<Dish, Integer> {
 
-    @Query("SELECT d FROM Dish d WHERE d.restId=:restId ORDER BY d.name")
-    List<Dish> getAllByRestId(int restId);
-
     @Transactional
     @Modifying
     @Query("UPDATE Dish d SET d.name=:name, d.price=:price WHERE d.id=:id")
     void update(String name, double price, int id);
-
-    @Query("SELECT d.restId FROM Dish d WHERE d.lunchDate=:date")
-    Set<Integer> getAllRestIdsWithMenuByDate(LocalDate date);
 
     @Query("SELECT d FROM Dish d WHERE d.restId=:restId AND d.lunchDate=:lunchDate ORDER BY d.name")
     List<Dish> getAllByRestIdDate(int restId, LocalDate lunchDate);

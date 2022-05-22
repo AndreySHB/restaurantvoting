@@ -48,8 +48,8 @@ public class Dish extends NamedEntity {
     public String toString() {
         return "Dish{" +
                 "price=" + price +
-                ", restId=" + restId +
                 ", lunchDate=" + lunchDate +
+                ", name='" + name + '\'' +
                 '}';
     }
 }

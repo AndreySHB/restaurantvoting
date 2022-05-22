@@ -13,6 +13,12 @@ public class DishTestData {
     public static final Dish DISH_2 = new Dish("BOBI", 20, YESTERDAY_DATE);
     public static final Dish NEW_DISH1 = new Dish("newJUK", 10, YESTERDAY_DATE, 1);
 
+    public static final Dish D1 = new Dish("HACHAPURI",50,CURRENT_DATE);
+    public static final Dish D2 = new Dish("LEPECHKA",20,CURRENT_DATE);
+    public static final Dish D3 = new Dish("KASHA",40,CURRENT_DATE);
+    public static final Dish D4 = new Dish("KOMPOT",20,CURRENT_DATE);
+
+
     public static final Dish NEW_DISH_BAD_PRICE = new Dish("newJUK", 0, CURRENT_DATE, 1);
     public static final Dish NEW_DISH = new Dish("Cacao", 4, CURRENT_DATE, 2);
     public static final Dish NEW_DISH_DUPLICATED = new Dish("JUK", 4, YESTERDAY_DATE, 1);

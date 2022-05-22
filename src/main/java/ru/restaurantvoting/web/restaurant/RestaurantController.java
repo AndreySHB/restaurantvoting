@@ -2,7 +2,6 @@ package ru.restaurantvoting.web.restaurant;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
@@ -12,9 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import ru.restaurantvoting.model.Dish;
 import ru.restaurantvoting.model.Restaurant;
-import ru.restaurantvoting.repository.DishRepository;
 import ru.restaurantvoting.repository.RestaurantRepository;
 import ru.restaurantvoting.util.validation.ValidationUtil;
 
@@ -22,7 +19,8 @@ import javax.validation.Valid;
 import java.net.URI;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Set;
+
+import static java.util.stream.Collectors.toList;
 
 @Validated
 @RestController
@@ -33,13 +31,7 @@ public class RestaurantController {
     public static final String ADMIN_RESTAURANTS = "/api/admin/restaurants/";
 
     @Autowired
-    CacheManager cacheManager;
-
-    @Autowired
     RestaurantRepository restaurantRepository;
-
-    @Autowired
-    DishRepository dishRepository;
 
     @Cacheable("restaurant")
     @GetMapping(USER_RESTAURANTS + "{id}")
@@ -48,26 +40,19 @@ public class RestaurantController {
         return restaurantRepository.getById(id);
     }
 
-    @Cacheable("dishes")
-    @GetMapping(USER_RESTAURANTS + "{id}/dishes")
-    public List<Dish> getDishesForRestaurantForToday(@PathVariable int id) {
-        log.info("getRestaurantWithDishes {}", id);
-        return dishRepository.getAllByRestIdDate(id, LocalDate.now());
+    @Cacheable("restaurants_for_today")
+    @Transactional
+    @GetMapping(USER_RESTAURANTS)
+    public List<Restaurant> getAllForToday() {
+        log.info("getAllRestaurantsWithMenuForToday");
+        return restaurantRepository.getAllWithMenuForDate(LocalDate.now())
+                .stream().filter(r -> r.getDishes() != null).collect(toList());
     }
 
     @GetMapping(ADMIN_RESTAURANTS)
     public List<Restaurant> getAll() {
         log.info("getAllRestaurants");
         return restaurantRepository.findAll();
-    }
-
-    @Cacheable("restaurants_for_today")
-    @Transactional
-    @GetMapping(USER_RESTAURANTS)
-    public List<Restaurant> getAllForToday() {
-        log.info("getAllRestaurantsWithMenuForToday");
-        Set<Integer> restIds = dishRepository.getAllRestIdsWithMenuByDate(LocalDate.now());
-        return restaurantRepository.findAll().stream().filter(rest -> restIds.contains(rest.getId())).toList();
     }
 
     @CacheEvict(value = {"restaurants_for_today", "restaurant"}, allEntries = true)
@@ -91,7 +76,7 @@ public class RestaurantController {
         restaurantRepository.save(restaurant);
     }
 
-    @CacheEvict(value = {"restaurants_for_today", "restaurant"}, allEntries = true)
+    @CacheEvict(value = {"restaurants_for_today", "restaurant, dishes"}, allEntries = true)
     @DeleteMapping(ADMIN_RESTAURANTS + "{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable int id) {
